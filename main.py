@@ -4,15 +4,15 @@ import telegram
 import vk_api
 import json
 
-vk_data = {'login': input(), 'password': input()}
-tg_data = {'token': input()}
+with open('config.txt', 'r') as f:
+    vk_login, vk_passwd, tg_token = f.read().split()
 
-updater = Updater(tg_data['token'])
+updater = Updater(tg_token)
 dispatcher = updater.dispatcher
 job_queue = updater.job_queue
 
 
-vk_session = vk_api.VkApi(vk_data['login'], vk_data['password'])
+vk_session = vk_api.VkApi(vk_login, vk_passwd)
 vk_session.auth(token_only=True)
 tools = vk_api.VkTools(vk_session)
 
