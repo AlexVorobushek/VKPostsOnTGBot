@@ -43,7 +43,6 @@ def safe_data():
 
 def run(context):
     posts = get_new_posts(data["public"])
-    print(len(posts))
     for post in posts:
         for chat in data['chats']:
             try:
