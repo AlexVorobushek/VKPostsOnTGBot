@@ -15,23 +15,29 @@ except vk_api.AuthError as error_msg:
 
 tools = vk_api.VkTools(vk_session)
 
-def get_posts():
+def get_posts(*publics):
     posts = []
-    for public_id in data['publics_id']:
+    for public_id in publics:
         posts += tools.get_all('wall.get', 1, {'owner_id': public_id})['items']
     posts = list(filter(lambda x: x['date'] > data['date'], posts))[::-1]
     return posts
-
 def safe_data():
     with open('data.json', 'w') as f:
         f.write(json.dumps(data))
 
 bot = telebot.TeleBot(data['bot_token'])
+
 while True:
-    posts = get_posts()
-    for post in posts:
+    for post in get_posts(data["public_for_test"]):
+        bot.send_message(data["admin_chat"], post['text'])
+
+    for post in get_posts(*data["publics"]):
         for chat in data['chats']:
-            bot.send_message(chat, post['text'])
+            try:
+                bot.send_message(chat, post['text'])
+            except telebot.apihelper.ApiTelegramException:
+                bot.send_message(data['admin_chat'], f"bot was blocked by the {chat} chat")
         data['date'] = post['date']
         safe_data()
+    
     time.sleep(60)
