@@ -27,10 +27,9 @@ def start(update, context):
     else:
         context.bot.send_message(chat_id=update.message.chat_id, text='ты уже подписан на рассылку')
 
-def _load_data(update, context):
-    global data
-    with open('data.json', 'r') as f:
-        data = json.loads(f.read())
+def get_last_post(update, context):
+    post = tools.get_all('wall.get', 1, {'owner_id': data["public"]})['items'][0]
+    context.bot.send_message(chat_id=update.message.chat_id, text=post['text'])
 
 def get_new_posts(public_id):
     posts = tools.get_all('wall.get', 5, {'owner_id': public_id})['items']
@@ -55,7 +54,7 @@ def run(context):
 
 
 dispatcher.add_handler(CommandHandler("start", start))
-dispatcher.add_handler(CommandHandler("load_data", _load_data))
+dispatcher.add_handler(CommandHandler("get_last_post", get_last_post))
 job_minute = job_queue.run_repeating(run, interval=10)
 
 print('started')
