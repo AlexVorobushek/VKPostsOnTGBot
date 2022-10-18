@@ -19,22 +19,16 @@ vk_session = vk_api.VkApi(vk_login, vk_passwd)
 vk_session.auth(token_only=True)
 tools = vk_api.VkTools(vk_session)
 
-with open('data.json', 'r') as f:
-    data = json.loads(f.read())
-
+data = get_data()
 
 def get_new_posts(public_id):
     posts = tools.get_all('wall.get', 5, {'owner_id': public_id})['items']
     posts = list(filter(lambda x: x['date'] > data['last_date'], posts))[::-1]
     return posts
 
-
-def safe_data():
-    with open('data.json', 'w') as f:
-        f.write(json.dumps(data))
-
-
 def run(context):
+    global data
+    data = get_data()
     posts = get_new_posts(data["public"])
     for post in posts:
         for chat in data['chats']:
@@ -45,7 +39,7 @@ def run(context):
                 context.bot.send_message(
                     data['admin_chat'], f"bot was blocked by the {chat} chat")
         data['last_date'] = post['date']
-    safe_data()
+    safe_data(data)
 
 
 dispatcher.add_handler(CommandHandler("start", start))
