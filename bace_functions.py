@@ -7,5 +7,6 @@ def get_data():
 
 
 def safe_data(data):
+    print("in safe_data")
     with open('data.json', 'w') as f:
         f.write(json.dumps(data))
